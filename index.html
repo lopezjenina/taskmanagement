@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <title>Luna</title>
+    <link rel="stylesheet" href="static/style.css">
+    <style>
+ 
+    </style>
+
+    <script>
+
+    function openModal() {
+    const modal = document.getElementById("addTaskModal");
+    modal.style.display = "block";
+    }
+
+    function closeModal() {
+    const modal = document.getElementById("addTaskModal");
+    modal.style.display = "none";
+    }
+
+    function confirmDelete(id) {
+    if (confirm("Are you sure you want to delete this task?")) {
+        window.location.href = "/delete/" + id;
+        }
+    }
+
+    function toggleTask(id) {
+    fetch("/update/" + id)
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                const taskElement = document.getElementById("task-" + id);
+                taskElement.classList.toggle("completed", data.completed);
+            }
+        })
+        
+    }
+
+    </script>
+    
+</head>
+<body>
+    <div class="container">
+        <button class="open-modal-button" onclick="openModal()"><b>Create</b></button>
+        <h1><center>Luna: Manage your life.</center></h1>
+        <center class="subTitle">Things to focus on today.</center>
+        <ul class="taskHandle">
+            <center><b><p id="date-container"></p></b></center>
+            {% for task in tasks %}
+            <li class="postTask" onclick="toggleDescription('{{ task.id }}')">
+                <b>
+                    <span class="{% if task.completed %}completed{% endif %} titleTask .col-md-8">
+                        {{ task.content }}
+                    </span>
+                </b>
+                <div id="description-{{ task.id }}" class="taskDesc" style="display: none;">
+                    {{ task.desc }}
+                </div>
+                <div class="taskButtons">
+                    <a href="/update/{{ task.id }}" class="updateButt .col-md-4">Toggle</a>
+                    <a href="/delete/{{ task.id }}" class="deleteButt .col-md-4">Remove</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+        <!-- Modal -->
+<div id="addTaskModal" class="modal" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h4 class="modal-title text-center">New Task</h4>
+            <form id="registration-form" method="POST" action="/add">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="content">Task Title:</label>
+                            <input type="text" name="content" class="form-control" id="content" placeholder="Enter task title" required>
+                        </div>
+                    </div>
+                </div>
+                <!-- <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="desc">Task Description:</label>
+                            <textarea name="desc" class="form-control" id="desc" placeholder="Enter task description" required></textarea>
+                        </div>
+                    </div>
+                </div> -->
+                <div class="row">
+                    <div class="col-md-12 text-center">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <script>
+        function getCurrentDate() {
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return today.toLocaleDateString(undefined, options);
+        }
+
+        const dateDisplay = document.getElementById("date-container");
+
+        function updateDateDisplay() {
+            dateDisplay.textContent = getCurrentDate();
+        }
+
+        // Add an event listener to run the code when the DOM is fully loaded
+        document.addEventListener("DOMContentLoaded", function () {
+            updateDateDisplay();
+        });
+    </script>
+    
+</body>
+</html>
